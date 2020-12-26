@@ -18,7 +18,7 @@ let urlDB;
 if (process.env.NODE_ENV === 'dev') {
     urlDB = 'mongodb://localhost:27017/cafe';
 } else {
-    urlDB = 'mongodb+srv://albertoJMG:G5VsZEAr9G3ZE7M@cluster1.uswnp.mongodb.net/cafe';
+    urlDB = process.env.MONGO_URI;  //Es necesario establecer esta variable de entorno en el repositorio de Heroku (Heroku config:set MONGO_URI = "<url de mongo_atlas>")
 }
 
 process.env.URLDB = urlDB;
