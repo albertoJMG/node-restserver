@@ -2,11 +2,12 @@ const express = require('express')
 const bcrypt = require('bcrypt')
 const _ = require('underscore')
 const Usuario = require('../models/usuario')
+const { verificaToken, verificaAdminRole } = require('../middlewares/autentication')
 const app = express()
 
-app.get('/usuario', function (req, res) {
+app.get('/usuario', verificaToken, function (req, res) {
 
-    let desde = req.query.desde || 0;   //De esta forma recogemos los parametros opcionales de la petición
+    let desde = req.query.desde || 0;   //De esta forma recogemos los parametros opcionales de la petición. PAGINACIÓN
     desde = Number(desde);              //Pasamos a numero, ya que el parametro es un String
 
     let limite = req.query.limite || 5;
@@ -23,7 +24,7 @@ app.get('/usuario', function (req, res) {
                 });
             }
 
-            Usuario.count({ /*google: true*/ estado: true }, (err, conteo) => {      //Si el find tiene condiciones en este caso el count tambien deberia tener las mismas condiciones
+            Usuario.countDocuments({ /*google: true*/ estado: true }, (err, conteo) => {      //Si el find tiene condiciones en este caso el count tambien deberia tener las mismas condiciones
                 res.json({
                     ok: true,
                     usuarios: usuarios,
@@ -35,7 +36,7 @@ app.get('/usuario', function (req, res) {
 
 })
 
-app.post('/usuario', function (req, res) {
+app.post('/usuario', [verificaToken, verificaAdminRole], function (req, res) {
     let body = req.body;
 
     let usuario = new Usuario({
@@ -63,7 +64,7 @@ app.post('/usuario', function (req, res) {
 
 })
 
-app.put('/usuario/:id', function (req, res) {
+app.put('/usuario/:id', [verificaToken, verificaAdminRole], function (req, res) {
     let id = req.params.id;
     //Underscore, para evitar que ciertos elementos de un objeto se puedan actualizar
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
@@ -86,7 +87,7 @@ app.put('/usuario/:id', function (req, res) {
 
 })
 
-app.delete('/usuario/:id', function (req, res) {
+app.delete('/usuario/:id', [verificaToken, verificaAdminRole], function (req, res) {
 
     let id = req.params.id;
 
